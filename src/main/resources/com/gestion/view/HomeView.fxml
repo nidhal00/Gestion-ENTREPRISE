@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.BarChart?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.chart.PieChart?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="656.0" prefWidth="905.0" style="-fx-background-color: #0a0f1e;"
+            stylesheets="@../css/style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.gestion.controller.HomeController">
+   <children>
+      <VBox spacing="24.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <HBox spacing="20.0">
+               <children>
+                  <VBox spacing="10.0" styleClass="stat-card-blue" HBox.hgrow="ALWAYS">
+                     <children>
+                        <HBox alignment="CENTER_LEFT" spacing="10.0">
+                           <children>
+                              <Pane prefHeight="36.0" prefWidth="36.0"
+                                    style="-fx-background-color: rgba(99,102,241,0.18); -fx-background-radius: 10;" />
+                              <Label styleClass="stat-label" text="TOTAL ENTREPRISES" />
+                           </children>
+                        </HBox>
+                        <Label fx:id="lblTotalEntreprises" styleClass="stat-number" text="—" />
+                        <Label style="-fx-text-fill: #6366f1; -fx-font-size: 11px;" text="▲ toutes gérées" />
+                     </children>
+                  </VBox>
+
+                  <VBox spacing="10.0" styleClass="stat-card-green" HBox.hgrow="ALWAYS">
+                     <children>
+                        <HBox alignment="CENTER_LEFT" spacing="10.0">
+                           <children>
+                              <Pane prefHeight="36.0" prefWidth="36.0"
+                                    style="-fx-background-color: rgba(16,185,129,0.18); -fx-background-radius: 10;" />
+                              <Label styleClass="stat-label" text="DOCUMENTS ARCHIVÉS" />
+                           </children>
+                        </HBox>
+                        <Label fx:id="lblTotalDocuments" styleClass="stat-number" text="—" />
+                        <Label style="-fx-text-fill: #10b981; -fx-font-size: 11px;" text="▲ pièces justificatives" />
+                     </children>
+                  </VBox>
+
+                  <VBox spacing="10.0" style="-fx-border-color: rgba(139, 92, 246, 0.4);" styleClass="stat-card-blue" HBox.hgrow="ALWAYS">
+                     <children>
+                        <HBox alignment="CENTER_LEFT" spacing="10.0">
+                           <children>
+                              <Pane prefHeight="36.0" prefWidth="36.0"
+                                    style="-fx-background-color: rgba(139, 92, 246, 0.18); -fx-background-radius: 10;" />
+                              <Label styleClass="stat-label" text="CONFORMITÉ PORTFOLIO" />
+                           </children>
+                        </HBox>
+                        <Label fx:id="lblGlobalCompliance" styleClass="stat-number" text="0 %" />
+                        <Label style="-fx-text-fill: #8b5cf6; -fx-font-size: 11px;" text="Score moyen global" />
+                     </children>
+                  </VBox>
+               </children>
+            </HBox>
+
+            <HBox spacing="20.0" VBox.vgrow="ALWAYS">
+               <children>
+                  <VBox spacing="14.0" styleClass="card" prefWidth="420.0">
+                     <children>
+                        <VBox spacing="4.0">
+                           <children>
+                              <Label styleClass="card-title" text="Répartition par Secteur" />
+                              <Label style="-fx-text-fill: #475569; -fx-font-size: 11px;" text="Distribution des entreprises" />
+                           </children>
+                        </VBox>
+                        <Pane maxHeight="1.0" prefHeight="1.0" style="-fx-background-color: rgba(255,255,255,0.06);" />
+                        <PieChart fx:id="chartTaille" labelsVisible="true" prefHeight="340.0" VBox.vgrow="ALWAYS" />
+                     </children>
+                  </VBox>
+
+                  <VBox spacing="14.0" styleClass="card" HBox.hgrow="ALWAYS">
+                     <children>
+                        <VBox spacing="4.0">
+                           <children>
+                              <Label styleClass="card-title" text="Volume de Documents" />
+                              <Label style="-fx-text-fill: #475569; -fx-font-size: 11px;" text="Nombre de documents par catégorie" />
+                           </children>
+                        </VBox>
+                        <Pane maxHeight="1.0" prefHeight="1.0" style="-fx-background-color: rgba(255,255,255,0.06);" />
+                        <BarChart fx:id="chartDocs" legendVisible="false" prefHeight="340.0" VBox.vgrow="ALWAYS">
+                          <xAxis>
+                             <CategoryAxis side="BOTTOM" tickLabelFill="#475569" />
+                          </xAxis>
+                          <yAxis>
+                             <NumberAxis side="LEFT" tickLabelFill="#475569" />
+                          </yAxis>
+                        </BarChart>
+                     </children>
+                  </VBox>
+               </children>
+            </HBox>
+         </children>
+         <padding><Insets bottom="24.0" left="28.0" right="28.0" top="24.0" /></padding>
+      </VBox>
+   </children>
+</AnchorPane>
