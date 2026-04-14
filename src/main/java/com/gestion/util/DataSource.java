@@ -5,7 +5,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class DataSource {
-    private String url = "jdbc:mysql://localhost:3306/mindaudit_pidev";
+    private String url = "jdbc:mysql://localhost:3306/mindaudit_pidev?autoReconnect=true&useSSL=false";
     private String user = "root";
     private String password = "";
     private Connection connection;

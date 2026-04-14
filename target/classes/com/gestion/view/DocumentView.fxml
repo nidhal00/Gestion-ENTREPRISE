@@ -72,6 +72,7 @@
                                  <children>
                                     <Label style="-fx-text-fill: #94a3b8;" text="Catégorie" />
                                     <ComboBox fx:id="cbType" prefHeight="38.0" prefWidth="320.0" promptText="Sélectionner une catégorie" />
+                                    <Label fx:id="errType" styleClass="error-label" visible="false" />
                                  </children>
                               </VBox>
                               <VBox spacing="5.0">

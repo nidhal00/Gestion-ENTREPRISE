@@ -20,6 +20,8 @@
          <left>
             <VBox prefWidth="255.0" spacing="4.0" styleClass="sidebar" BorderPane.alignment="CENTER">
                <children>
+
+                  <!-- Logo -->
                   <HBox alignment="CENTER_LEFT" spacing="12.0">
                      <children>
                         <Pane prefHeight="38.0" prefWidth="38.0"
@@ -38,11 +40,13 @@
                      <VBox.margin><Insets bottom="32.0" /></VBox.margin>
                   </HBox>
 
+                  <!-- Menu label -->
                   <Label text="MENU PRINCIPAL" textFill="#334155">
                      <font><Font name="System Bold" size="10.0" /></font>
                      <VBox.margin><Insets bottom="4.0" left="8.0" /></VBox.margin>
                   </Label>
 
+                  <!-- Navigation buttons -->
                   <Button fx:id="btnHome" alignment="BASELINE_LEFT" mnemonicParsing="false"
                           onAction="#showHome" prefHeight="46.0" prefWidth="240.0"
                           styleClass="nav-button" text="🏠  Tableau de Bord" />
@@ -55,7 +59,9 @@
 
                   <VBox VBox.vgrow="ALWAYS" />
 
-                  <VBox spacing="6.0" style="-fx-background-color: rgba(245,158,11,0.06); -fx-padding: 10; -fx-background-radius: 10; -fx-border-color: rgba(245,158,11,0.2); -fx-border-radius: 10; -fx-border-width: 1;">
+                  <!-- Demo role toggle -->
+                  <VBox spacing="6.0"
+                        style="-fx-background-color: rgba(245,158,11,0.06); -fx-padding: 10; -fx-background-radius: 10; -fx-border-color: rgba(245,158,11,0.2); -fx-border-radius: 10; -fx-border-width: 1;">
                      <children>
                         <Label text="MODE DÉMO — BASCULER RÔLE" textFill="#92400e">
                            <font><Font size="9.0" /></font>
@@ -68,11 +74,13 @@
                      <VBox.margin><Insets bottom="10.0" /></VBox.margin>
                   </VBox>
 
+                  <!-- Separator -->
                   <Pane maxHeight="1.0" prefHeight="1.0"
                         style="-fx-background-color: rgba(255,255,255,0.06);">
                      <VBox.margin><Insets bottom="10.0" /></VBox.margin>
                   </Pane>
 
+                  <!-- User card -->
                   <HBox alignment="CENTER_LEFT" spacing="10.0"
                         style="-fx-background-color: rgba(99,102,241,0.08); -fx-padding: 12; -fx-background-radius: 12; -fx-border-color: rgba(99,102,241,0.2); -fx-border-radius: 12; -fx-border-width: 1;">
                      <children>
@@ -90,6 +98,7 @@
                         </VBox>
                      </children>
                   </HBox>
+
                </children>
                <padding><Insets bottom="16.0" left="12.0" right="12.0" top="24.0" /></padding>
             </VBox>
@@ -98,6 +107,7 @@
          <center>
             <VBox BorderPane.alignment="CENTER">
                <children>
+                  <!-- Topbar -->
                   <HBox alignment="CENTER_LEFT" prefHeight="64.0" spacing="16.0" styleClass="topbar">
                      <children>
                         <VBox>
@@ -115,6 +125,8 @@
                                style="-fx-background-color: rgba(99,102,241,0.15); -fx-text-fill: #818cf8; -fx-font-weight: bold; -fx-font-size: 10px; -fx-background-radius: 6; -fx-padding: 4 10; -fx-border-color: rgba(99,102,241,0.3); -fx-border-radius: 6; -fx-border-width: 1;" />
                      </children>
                   </HBox>
+
+                  <!-- Content area -->
                   <StackPane fx:id="contentArea" style="-fx-background-color: #0a0f1e;" VBox.vgrow="ALWAYS" />
                </children>
             </VBox>

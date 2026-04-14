@@ -24,8 +24,13 @@ public class EntrepriseService {
             pst.setString(6, e.getEmail());
             pst.setString(7, e.getTelephone());
             pst.setString(8, e.getAdresse());
-            pst.setTimestamp(9, new Timestamp(System.currentTimeMillis()));
-            pst.setString(10, "en_attente");
+            long ts = (e.getDateCreation() != null)
+                ? e.getDateCreation().getTime()
+                : System.currentTimeMillis();
+            pst.setTimestamp(9, new Timestamp(ts));
+            // Utilise le statut défini (ex: validé par score auto), sinon "en_attente" par défaut
+            pst.setString(10, e.getStatut() != null ? e.getStatut() : "en_attente");
+            // owner_id stocké pour permettre au User de retrouver son entreprise
             if (e.getOwnerId() != null) pst.setInt(11, e.getOwnerId());
             else pst.setNull(11, Types.INTEGER);
             pst.executeUpdate();

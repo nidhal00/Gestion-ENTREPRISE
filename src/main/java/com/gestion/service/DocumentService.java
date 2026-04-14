@@ -4,9 +4,7 @@ import com.gestion.entity.Document;
 import com.gestion.util.DataSource;
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class DocumentService {
     private Connection connection;
@@ -84,18 +82,17 @@ public class DocumentService {
         return list;
     }
 
-    public Map<Integer, List<String>> getCategoriesPerEntreprise() throws SQLException {
-        Map<Integer, List<String>> map = new HashMap<>();
-        String query = "SELECT entreprise_id, type FROM document WHERE statut = 'validé'";
-        try (Statement st = connection.createStatement();
-             ResultSet rs = st.executeQuery(query)) {
-            while (rs.next()) {
-                int entId = rs.getInt("entreprise_id");
-                String type = rs.getString("type");
-                map.computeIfAbsent(entId, k -> new ArrayList<>()).add(type);
+    public int getComplianceScore(int entrepriseId) throws SQLException {
+        String query = "SELECT COUNT(DISTINCT type) FROM document WHERE entreprise_id = ? AND statut = 'validé' AND type IN ('RH','fiscal','financier','ISO')";
+        try (PreparedStatement pst = connection.prepareStatement(query)) {
+            pst.setInt(1, entrepriseId);
+            try (ResultSet rs = pst.executeQuery()) {
+                if (rs.next()) {
+                    return (rs.getInt(1) * 100) / 4;
+                }
             }
         }
-        return map;
+        return 0;
     }
 
     private Document mapResultSetToDocument(ResultSet rs) throws SQLException {

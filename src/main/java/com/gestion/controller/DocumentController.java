@@ -20,37 +20,85 @@ import java.util.List;
 
 public class DocumentController {
 
+
     @FXML private HBox adminControlsDoc, filterBar;
     @FXML private ComboBox<Entreprise> cbEntreprise, cbFilter;
-    @FXML private TextField txtNom, txtUrl;
-    @FXML private ComboBox<String> cbType;
-    @FXML private Label errEntreprise, errNom, errUrl;
-    @FXML private TableView<Document> tableDocuments;
+    @FXML private TextField            txtNom, txtUrl;
+    @FXML private ComboBox<String>     cbType;
+    @FXML private Label                errEntreprise, errNom, errType, errUrl;
+    @FXML private TableView<Document>           tableDocuments;
     @FXML private TableColumn<Document, String> colNom, colType, colUrl, colStatut;
-    @FXML private TableColumn<Document, Date> colDate;
+    @FXML private TableColumn<Document, Date>   colDate;
 
-    private DocumentService docService = new DocumentService();
-    private EntrepriseService entService = new EntrepriseService();
-    private ObservableList<Document> docList = FXCollections.observableArrayList();
-    private Document selectedDoc = null;
+    private final DocumentService            docService = new DocumentService();
+    private final EntrepriseService          entService = new EntrepriseService();
+    private final ObservableList<Document>   docList    = FXCollections.observableArrayList();
+    private       Document                   selectedDoc = null;
 
     public void initialize() {
         SessionManager session = SessionManager.getInstance();
-        boolean isAdmin = session.isAdmin();
+        boolean admin = session.isAdmin();
 
-        if (adminControlsDoc != null) { adminControlsDoc.setVisible(isAdmin); adminControlsDoc.setManaged(isAdmin); }
-        if (filterBar != null) { filterBar.setVisible(isAdmin); filterBar.setManaged(isAdmin); }
+        if (adminControlsDoc != null) { adminControlsDoc.setVisible(admin); adminControlsDoc.setManaged(admin); }
+        if (filterBar != null)        { filterBar.setVisible(admin);        filterBar.setManaged(admin); }
 
         setupTable();
         loadEntreprises();
         cbType.setItems(FXCollections.observableArrayList("RH", "fiscal", "financier", "ISO", "Autre"));
-        
-        if (!isAdmin) restrictUserToOwnCompany(session.getUserId());
+
+        if (!admin) restrictUserToOwnCompany(session.getUserId());
         refreshTable();
 
-        tableDocuments.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
-            if (newVal != null) { selectedDoc = newVal; fillFields(newVal); }
+        tableDocuments.getSelectionModel().selectedItemProperty()
+            .addListener((obs, oldVal, newVal) -> {
+                if (newVal != null) { selectedDoc = newVal; fillFields(newVal); }
+            });
+    }
+
+    private void setupTable() {
+        colNom.setCellValueFactory(new PropertyValueFactory<>("nom"));
+        colType.setCellValueFactory(new PropertyValueFactory<>("type"));
+        colDate.setCellValueFactory(new PropertyValueFactory<>("dateUpload"));
+        colUrl.setCellValueFactory(new PropertyValueFactory<>("url"));
+        colStatut.setCellValueFactory(new PropertyValueFactory<>("statut"));
+
+        colStatut.setCellFactory(col -> new TableCell<>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) { setText(null); setStyle(""); return; }
+                setText(item);
+                switch (item) {
+                    case "validé"  -> setStyle("-fx-text-fill: #10b981; -fx-font-weight: bold;");
+                    case "rejeté"  -> setStyle("-fx-text-fill: #ef4444; -fx-font-weight: bold;");
+                    default        -> setStyle("-fx-text-fill: #f59e0b; -fx-font-weight: bold;");
+                }
+            }
         });
+    }
+
+    private void loadEntreprises() {
+        try {
+            List<Entreprise> list = entService.findAll();
+            cbEntreprise.setItems(FXCollections.observableArrayList(list));
+            cbFilter.setItems(FXCollections.observableArrayList(list));
+        } catch (SQLException e) { e.printStackTrace(); }
+    }
+
+    private void refreshTable() {
+        try {
+            SessionManager s = SessionManager.getInstance();
+            if (s.isAdmin()) {
+                docList.setAll(docService.findAll());
+            } else {
+                List<Entreprise> myEnts = entService.findByOwnerId(s.getUserId());
+                if (!myEnts.isEmpty()) docList.setAll(docService.findByEntrepriseId(myEnts.get(0).getId()));
+                else docList.clear();
+            }
+            tableDocuments.setItems(docList);
+        } catch (SQLException e) {
+            UiHelper.showAlert("Erreur", "Chargement des documents impossible.", Alert.AlertType.ERROR);
+        }
     }
 
     private void restrictUserToOwnCompany(int ownerId) {
@@ -66,44 +114,6 @@ public class DocumentController {
         } catch (SQLException e) { e.printStackTrace(); }
     }
 
-    private void setupTable() {
-        colNom.setCellValueFactory(new PropertyValueFactory<>("nom"));
-        colType.setCellValueFactory(new PropertyValueFactory<>("type"));
-        colDate.setCellValueFactory(new PropertyValueFactory<>("dateUpload"));
-        colUrl.setCellValueFactory(new PropertyValueFactory<>("url"));
-        colStatut.setCellValueFactory(new PropertyValueFactory<>("statut"));
-    }
-
-    private void loadEntreprises() {
-        try {
-            List<Entreprise> list = entService.findAll();
-            cbEntreprise.setItems(FXCollections.observableArrayList(list));
-            cbFilter.setItems(FXCollections.observableArrayList(list));
-        } catch (SQLException e) { e.printStackTrace(); }
-    }
-
-    private void refreshTable() {
-        try {
-            SessionManager s = SessionManager.getInstance();
-            if (s.isAdmin()) docList.setAll(docService.findAll());
-            else {
-                List<Entreprise> myEnts = entService.findByOwnerId(s.getUserId());
-                if (!myEnts.isEmpty()) docList.setAll(docService.findByEntrepriseId(myEnts.get(0).getId()));
-                else docList.clear();
-            }
-            tableDocuments.setItems(docList);
-        } catch (SQLException e) { UiHelper.showAlert("Erreur", "Chargement impossible", Alert.AlertType.ERROR); }
-    }
-
-    @FXML void handleFilter() {
-        Entreprise sel = cbFilter.getValue();
-        if (sel == null) { refreshTable(); return; }
-        try { docList.setAll(docService.findByEntrepriseId(sel.getId())); } 
-        catch (SQLException e) { UiHelper.showAlert("Erreur", "Filtre impossible", Alert.AlertType.ERROR); }
-    }
-
-    @FXML void handleClearFilter() { cbFilter.getSelectionModel().clearSelection(); refreshTable(); }
-
     @FXML void handleSave() {
         if (!validateInput()) return;
         try {
@@ -113,13 +123,87 @@ public class DocumentController {
                 d.setDateUpload(new Date());
                 d.setStatut("en_attente");
                 docService.add(d);
+                UiHelper.showAlert("Succès", "Document ajouté avec succès.", Alert.AlertType.INFORMATION);
             } else {
                 updateEntityFromFields(selectedDoc);
                 docService.update(selectedDoc);
+                UiHelper.showAlert("Succès", "Document mis à jour.", Alert.AlertType.INFORMATION);
             }
             clearFields();
             refreshTable();
-        } catch (SQLException e) { UiHelper.showAlert("Erreur", "Echec enregistrement", Alert.AlertType.ERROR); }
+        } catch (SQLException e) {
+            UiHelper.showAlert("Erreur", "Échec de l'enregistrement : " + e.getMessage(), Alert.AlertType.ERROR);
+        }
+    }
+
+    @FXML void handleDelete() {
+        Document sel = tableDocuments.getSelectionModel().getSelectedItem();
+        if (sel == null) {
+            UiHelper.showAlert("Sélection requise", "Sélectionnez un document.", Alert.AlertType.WARNING);
+            return;
+        }
+        Alert conf = new Alert(Alert.AlertType.CONFIRMATION,
+            "Supprimer « " + sel.getNom() + " » ?",
+            ButtonType.YES, ButtonType.NO);
+        conf.showAndWait().ifPresent(r -> {
+            if (r == ButtonType.YES) {
+                try {
+                    docService.delete(sel.getId());
+                    clearFields();
+                    refreshTable();
+                    UiHelper.showAlert("Supprimé", "Document supprimé.", Alert.AlertType.INFORMATION);
+                } catch (SQLException e) {
+                    UiHelper.showAlert("Erreur", "Échec suppression : " + e.getMessage(), Alert.AlertType.ERROR);
+                }
+            }
+        });
+    }
+
+    @FXML void handleValidateDoc() { updateDocStatut("validé"); }
+    @FXML void handleRejectDoc()   { updateDocStatut("rejeté"); }
+
+    @FXML void handleFilter() {
+        Entreprise sel = cbFilter.getValue();
+        if (sel == null) { refreshTable(); return; }
+        try { docList.setAll(docService.findByEntrepriseId(sel.getId())); }
+        catch (SQLException e) { UiHelper.showAlert("Erreur", "Filtre impossible.", Alert.AlertType.ERROR); }
+    }
+
+    @FXML void handleClearFilter() {
+        cbFilter.getSelectionModel().clearSelection();
+        refreshTable();
+    }
+
+    @FXML void handleBrowse() {
+        FileChooser fc = new FileChooser();
+        fc.setTitle("Sélectionner un document");
+        fc.getExtensionFilters().add(
+            new FileChooser.ExtensionFilter("Documents", "*.pdf", "*.docx", "*.xlsx", "*.txt"));
+        File f = fc.showOpenDialog(null);
+        if (f != null) txtUrl.setText(f.getAbsolutePath());
+    }
+
+    @FXML void clearFields() {
+        txtNom.clear(); txtUrl.clear();
+        cbType.getSelectionModel().clearSelection();
+        if (SessionManager.getInstance().isAdmin())
+            cbEntreprise.getSelectionModel().clearSelection();
+        selectedDoc = null;
+        hideErrors();
+    }
+
+    private void updateDocStatut(String statut) {
+        Document sel = tableDocuments.getSelectionModel().getSelectedItem();
+        if (sel == null) {
+            UiHelper.showAlert("Sélection requise", "Sélectionnez un document.", Alert.AlertType.WARNING);
+            return;
+        }
+        try {
+            docService.updateStatut(sel.getId(), statut);
+            refreshTable();
+        } catch (SQLException e) {
+            UiHelper.showAlert("Erreur", "Impossible de mettre à jour le statut.", Alert.AlertType.ERROR);
+        }
     }
 
     private void updateEntityFromFields(Document d) {
@@ -129,64 +213,47 @@ public class DocumentController {
         d.setUrl(txtUrl.getText().trim());
     }
 
-    @FXML void handleDelete() {
-        Document sel = tableDocuments.getSelectionModel().getSelectedItem();
-        if (sel == null) return;
-        Alert conf = new Alert(Alert.AlertType.CONFIRMATION, "Supprimer « " + sel.getNom() + " » ?", ButtonType.YES, ButtonType.NO);
-        conf.showAndWait().ifPresent(r -> {
-            if (r == ButtonType.YES) {
-                try { docService.delete(sel.getId()); clearFields(); refreshTable(); }
-                catch (SQLException e) { UiHelper.showAlert("Erreur", "Echec suppression", Alert.AlertType.ERROR); }
-            }
-        });
-    }
-
-    @FXML void handleValidateDoc() { updateDocStatut("validé"); }
-    @FXML void handleRejectDoc() { updateDocStatut("rejeté"); }
-
-    private void updateDocStatut(String s) {
-        Document sel = tableDocuments.getSelectionModel().getSelectedItem();
-        if (sel == null) return;
-        try { docService.updateStatut(sel.getId(), s); refreshTable(); } 
-        catch (SQLException e) { UiHelper.showAlert("Erreur", "Echec statut", Alert.AlertType.ERROR); }
-    }
-
-    @FXML void handleBrowse() {
-        FileChooser fc = new FileChooser();
-        fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("Docs", "*.pdf", "*.docx", "*.xlsx", "*.txt"));
-        File f = fc.showOpenDialog(null);
-        if (f != null) txtUrl.setText(f.getAbsolutePath());
-    }
-
-    @FXML void clearFields() {
-        txtNom.clear(); txtUrl.clear(); cbType.getSelectionModel().clearSelection();
-        if (SessionManager.getInstance().isAdmin()) cbEntreprise.getSelectionModel().clearSelection();
-        selectedDoc = null;
-        hideErrors();
-    }
-
-    private boolean validateInput() {
-        hideErrors();
-        boolean v = true;
-        if (cbEntreprise.getValue() == null) { UiHelper.showError(errEntreprise, "Requis", cbEntreprise); v = false; }
-        if (txtNom.getText().trim().isEmpty()) { UiHelper.showError(errNom, "Requis", txtNom); v = false; }
-        if (txtUrl.getText().trim().isEmpty()) { UiHelper.showError(errUrl, "Requis", txtUrl); v = false; }
-        return v;
-    }
-
     private void fillFields(Document d) {
         UiHelper.resetFieldStyles(cbEntreprise, txtNom, txtUrl);
         txtNom.setText(d.getNom());
         txtUrl.setText(d.getUrl());
         cbType.setValue(d.getType());
         if (SessionManager.getInstance().isAdmin()) {
-            cbEntreprise.getItems().stream().filter(e -> e.getId() == d.getEntrepriseId()).findFirst().ifPresent(cbEntreprise::setValue);
+            cbEntreprise.getItems().stream()
+                .filter(e -> e.getId() == d.getEntrepriseId())
+                .findFirst()
+                .ifPresent(cbEntreprise::setValue);
         }
     }
 
-    private void hideErrors() { 
+    private boolean validateInput() {
+        hideErrors();
+        boolean v = true;
+
+        if (cbEntreprise.getValue() == null) {
+            UiHelper.showError(errEntreprise, "Veuillez sélectionner une entreprise", cbEntreprise);
+            v = false;
+        }
+        if (txtNom.getText().trim().isEmpty()) {
+            UiHelper.showError(errNom, "Veuillez saisir un libellé", txtNom);
+            v = false;
+        }
+        if (cbType.getValue() == null) {
+            UiHelper.showError(errType, "Veuillez sélectionner une catégorie", cbType);
+            v = false;
+        }
+        if (txtUrl.getText().trim().isEmpty()) {
+            UiHelper.showError(errUrl, "Veuillez sélectionner un fichier", txtUrl);
+            v = false;
+        }
+
+        return v;
+    }
+
+    private void hideErrors() {
         UiHelper.hideError(errEntreprise, cbEntreprise);
-        UiHelper.hideError(errNom, txtNom);
-        UiHelper.hideError(errUrl, txtUrl);
+        UiHelper.hideError(errNom,        txtNom);
+        UiHelper.hideError(errType,       cbType);
+        UiHelper.hideError(errUrl,        txtUrl);
     }
 }
