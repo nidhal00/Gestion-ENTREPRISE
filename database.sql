@@ -51,10 +51,18 @@ CREATE TABLE IF NOT EXISTS document (
     FOREIGN KEY (entreprise_id) REFERENCES entreprise(id) ON DELETE CASCADE
 );
 
-SET FOREIGN_KEY_CHECKS = 1;
+-- ────────────────────────────────────────────────────────────
+-- Table : audit_log
+-- ────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS audit_log (
+    id           INT AUTO_INCREMENT PRIMARY KEY,
+    user_id      INT,
+    user_name    VARCHAR(100),
+    action       VARCHAR(100) NOT NULL,
+    entity_type  VARCHAR(50),
+    entity_id    INT,
+    detail       TEXT,
+    created_at   TIMESTAMP DEFAULT NOW()
+);
 
--- ────────────────────────────────────────────────────────────
--- Migration : supprimer la FK owner_id → utilisateur
--- (à exécuter si la base existante contient encore cette contrainte)
--- ────────────────────────────────────────────────────────────
--- ALTER TABLE entreprise DROP FOREIGN KEY FK_D19FA6076ED395;
+SET FOREIGN_KEY_CHECKS = 1;

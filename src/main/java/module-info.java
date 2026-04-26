@@ -3,6 +3,13 @@ module com.gestion {
     requires javafx.fxml;
     requires java.sql;
     requires mysql.connector.j;
+    requires kernel;
+    requires layout;
+    requires io;
+    requires java.mail;
+    requires com.google.zxing;
+    requires com.google.zxing.javase;
+    requires java.desktop;
 
     opens com.gestion to javafx.fxml;
     opens com.gestion.controller to javafx.fxml;
@@ -12,4 +19,5 @@ module com.gestion {
     exports com.gestion;
     exports com.gestion.controller;
     exports com.gestion.entity;
+    exports com.gestion.util;
 }

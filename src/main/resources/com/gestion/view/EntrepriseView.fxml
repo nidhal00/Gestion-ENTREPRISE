@@ -37,6 +37,8 @@
                   <Button mnemonicParsing="false" onAction="#handleInvalidate" prefHeight="36.0"
                           style="-fx-background-color: linear-gradient(to right, #991b1b, #dc2626); -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 8 20;"
                           text="❌  Invalider" />
+                  <Button mnemonicParsing="false" onAction="#handleGenerateQR"
+                          styleClass="btn-secondary" text="▦ QR Code" prefHeight="36.0" />
                </children>
             </HBox>
 
@@ -177,19 +179,35 @@
                   <!-- ══ Table ══ -->
                   <VBox spacing="14.0" styleClass="card" HBox.hgrow="ALWAYS">
                      <children>
-                        <HBox alignment="CENTER_LEFT" spacing="15.0">
+
+                        <!-- En-tête Table + Filtres -->
+                        <VBox spacing="10.0">
                            <children>
-                              <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                              <HBox alignment="CENTER_LEFT" spacing="10.0">
                                  <children>
-                                    <Label styleClass="card-title" text="Portefeuille Clients" />
-                                    <Label style="-fx-text-fill: #475569; -fx-font-size: 11px;"
-                                           text="Cliquez sur une ligne pour la modifier" />
+                                    <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                                       <children>
+                                          <Label styleClass="card-title" text="Portefeuille Clients" />
+                                          <Label style="-fx-text-fill: #475569; -fx-font-size: 11px;"
+                                                 text="Cliquez sur une ligne pour la modifier" />
+                                       </children>
+                                    </VBox>
+                                    <TextField fx:id="txtSearch" prefHeight="35.0" prefWidth="160.0"
+                                               promptText="🔍 Rechercher..." />
                                  </children>
-                              </VBox>
-                              <TextField fx:id="txtSearch" prefHeight="35.0" prefWidth="250.0"
-                                         promptText="🔍 Rechercher..." />
+                              </HBox>
+                              <!-- Filtre bar -->
+                              <HBox alignment="CENTER_LEFT" spacing="8.0">
+                                 <children>
+                                    <ComboBox fx:id="cbFilterStatut"  prefHeight="32.0" prefWidth="110.0" promptText="Statut" />
+                                    <ComboBox fx:id="cbFilterSecteur" prefHeight="32.0" prefWidth="140.0" promptText="Secteur" />
+                                    <ComboBox fx:id="cbFilterTaille"  prefHeight="32.0" prefWidth="100.0" promptText="Taille" />
+                                    <Button mnemonicParsing="false" onAction="#handleResetFilters" styleClass="btn-secondary" text="↺ Reset" />
+                                 </children>
+                              </HBox>
                            </children>
-                        </HBox>
+                        </VBox>
+
                         <Pane maxHeight="1.0" prefHeight="1.0" style="-fx-background-color: rgba(255,255,255,0.06);" />
 
                         <TableView fx:id="tableEntreprises" VBox.vgrow="ALWAYS">
@@ -205,12 +223,29 @@
                            </columnResizePolicy>
                         </TableView>
 
-                        <HBox alignment="CENTER_RIGHT">
+                        <!-- Pagination -->
+                        <HBox alignment="CENTER" spacing="20.0">
                            <children>
+                              <Button fx:id="btnPrev" mnemonicParsing="false" onAction="#handlePrevPage"
+                                      styleClass="btn-secondary" text="◀ Précédent" />
+                              <Label fx:id="lblPagination" style="-fx-text-fill: #94a3b8; -fx-font-weight: bold;" text="Page 1 / 1" />
+                              <Button fx:id="btnNext" mnemonicParsing="false" onAction="#handleNextPage"
+                                      styleClass="btn-secondary" text="Suivant ▶" />
+                           </children>
+                        </HBox>
+
+                        <!-- Actions bas -->
+                        <HBox alignment="CENTER_RIGHT" spacing="10.0">
+                           <children>
+                              <Button mnemonicParsing="false" onAction="#handleExportPdf"
+                                      style="-fx-background-color: linear-gradient(to right,#4f46e5,#7c3aed); -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 8 20;"
+                                      text="📄 Export PDF" />
+                              <Pane HBox.hgrow="ALWAYS" />
                               <Button mnemonicParsing="false" onAction="#handleDelete"
                                       styleClass="btn-danger" text="🗑️  Supprimer la sélection" />
                            </children>
                         </HBox>
+
                      </children>
                   </VBox>
 

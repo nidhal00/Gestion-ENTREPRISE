@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="656.0" prefWidth="905.0" style="-fx-background-color: #0a0f1e;"
+            stylesheets="@../css/style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.gestion.controller.HistoriqueController">
+   <children>
+      <VBox spacing="16.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+            AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+
+            <!-- Header + Filters -->
+            <VBox spacing="12.0" style="-fx-background-color: rgba(26,34,54,0.6); -fx-padding: 16 20; -fx-background-radius: 12; -fx-border-color: rgba(255,255,255,0.05); -fx-border-radius: 12; -fx-border-width: 1;">
+               <children>
+
+                  <!-- Title row -->
+                  <HBox alignment="CENTER_LEFT" spacing="12.0">
+                     <children>
+                        <VBox spacing="3.0" HBox.hgrow="ALWAYS">
+                           <children>
+                              <Label text="Historique des Activités" textFill="WHITE">
+                                 <font><Font name="System Bold" size="17.0" /></font>
+                              </Label>
+                              <Label text="Timeline unifiée des entreprises et documents" textFill="#475569">
+                                 <font><Font size="11.0" /></font>
+                              </Label>
+                           </children>
+                        </VBox>
+                        <Label fx:id="lblCount" text="0 événement(s)"
+                               style="-fx-background-color: rgba(99,102,241,0.15); -fx-text-fill: #818cf8;
+                                      -fx-font-weight: bold; -fx-font-size: 11px; -fx-background-radius: 20;
+                                      -fx-padding: 4 14; -fx-border-color: rgba(99,102,241,0.3);
+                                      -fx-border-radius: 20; -fx-border-width: 1;" />
+                        <Button mnemonicParsing="false" onAction="#handleRefresh"
+                                style="-fx-background-color: rgba(99,102,241,0.15); -fx-text-fill: #818cf8;
+                                       -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand;
+                                       -fx-padding: 6 14; -fx-border-color: rgba(99,102,241,0.25);
+                                       -fx-border-radius: 8; -fx-border-width: 1;"
+                                text="🔄 Actualiser" />
+                     </children>
+                  </HBox>
+
+                  <Pane maxHeight="1.0" prefHeight="1.0" style="-fx-background-color: rgba(255,255,255,0.06);" />
+
+                  <!-- Filter bar -->
+                  <HBox alignment="CENTER_LEFT" spacing="10.0">
+                     <children>
+                        <Label text="Type :" style="-fx-text-fill: #64748b; -fx-font-size: 12px;" />
+                        <ComboBox fx:id="cbFilterType" prefHeight="34.0" prefWidth="130.0" promptText="Tous" />
+
+                        <Label text="Statut :" style="-fx-text-fill: #64748b; -fx-font-size: 12px;" />
+                        <ComboBox fx:id="cbFilterStatut" prefHeight="34.0" prefWidth="130.0" promptText="Tous" />
+
+                        <Label text="Du :" style="-fx-text-fill: #64748b; -fx-font-size: 12px;" />
+                        <DatePicker fx:id="dpFrom" prefHeight="34.0" prefWidth="145.0" promptText="Date début" />
+
+                        <Label text="Au :" style="-fx-text-fill: #64748b; -fx-font-size: 12px;" />
+                        <DatePicker fx:id="dpTo" prefHeight="34.0" prefWidth="145.0" promptText="Date fin" />
+
+                        <Pane HBox.hgrow="ALWAYS" />
+
+                        <Button fx:id="btnReset" mnemonicParsing="false" onAction="#handleReset"
+                                styleClass="btn-secondary" text="↺ Réinitialiser" />
+                     </children>
+                  </HBox>
+
+               </children>
+            </VBox>
+
+            <!-- Timeline ScrollPane -->
+            <ScrollPane fx:id="scrollPane" fitToWidth="true" focusTraversable="false" VBox.vgrow="ALWAYS"
+                        style="-fx-background-color: transparent; -fx-background: transparent;
+                               -fx-border-color: transparent;">
+               <content>
+                  <VBox fx:id="vboxTimeline" spacing="6.0"
+                        style="-fx-background-color: transparent;">
+                     <padding><Insets bottom="12.0" left="12.0" right="12.0" top="12.0" /></padding>
+                  </VBox>
+               </content>
+            </ScrollPane>
+
+         </children>
+         <padding><Insets bottom="20.0" left="24.0" right="24.0" top="20.0" /></padding>
+      </VBox>
+   </children>
+</AnchorPane>

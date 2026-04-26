@@ -88,6 +88,39 @@ public class EntrepriseService {
         return list;
     }
 
+    public java.util.Map<String, Integer> countByStatut() throws SQLException {
+        java.util.Map<String, Integer> map = new java.util.HashMap<>();
+        String query = "SELECT statut, COUNT(*) FROM entreprise GROUP BY statut";
+        try (Statement st = connection.createStatement(); ResultSet rs = st.executeQuery(query)) {
+            while (rs.next()) map.put(rs.getString(1), rs.getInt(2));
+        }
+        return map;
+    }
+
+    public List<Entreprise> findInMonth(int year, int month) throws SQLException {
+        List<Entreprise> list = new ArrayList<>();
+        String query = "SELECT * FROM entreprise WHERE YEAR(date_creation) = ? AND MONTH(date_creation) = ?";
+        try (PreparedStatement pst = connection.prepareStatement(query)) {
+            pst.setInt(1, year);
+            pst.setInt(2, month);
+            try (ResultSet rs = pst.executeQuery()) {
+                while (rs.next()) list.add(mapResultSetToEntreprise(rs));
+            }
+        }
+        return list;
+    }
+
+    public Entreprise findById(int id) throws SQLException {
+        String query = "SELECT * FROM entreprise WHERE id = ?";
+        try (PreparedStatement pst = connection.prepareStatement(query)) {
+            pst.setInt(1, id);
+            try (ResultSet rs = pst.executeQuery()) {
+                if (rs.next()) return mapResultSetToEntreprise(rs);
+            }
+        }
+        return null;
+    }
+
     private Entreprise mapResultSetToEntreprise(ResultSet rs) throws SQLException {
         Entreprise e = new Entreprise();
         e.setId(rs.getInt("id"));

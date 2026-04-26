@@ -95,6 +95,47 @@ public class DocumentService {
         return 0;
     }
 
+    public java.util.Map<String, Integer> countByStatut() throws SQLException {
+        java.util.Map<String, Integer> map = new java.util.HashMap<>();
+        String query = "SELECT statut, COUNT(*) FROM document GROUP BY statut";
+        try (Statement st = connection.createStatement(); ResultSet rs = st.executeQuery(query)) {
+            while (rs.next()) map.put(rs.getString(1), rs.getInt(2));
+        }
+        return map;
+    }
+
+    public java.util.Map<String, Integer> countByType() throws SQLException {
+        java.util.Map<String, Integer> map = new java.util.HashMap<>();
+        String query = "SELECT type, COUNT(*) FROM document GROUP BY type";
+        try (Statement st = connection.createStatement(); ResultSet rs = st.executeQuery(query)) {
+            while (rs.next()) map.put(rs.getString(1), rs.getInt(2));
+        }
+        return map;
+    }
+
+    public java.util.Map<String, Integer> countByMonth() throws SQLException {
+        java.util.Map<String, Integer> map = new java.util.LinkedHashMap<>();
+        String query = "SELECT DATE_FORMAT(date_upload,'%Y-%m') as mois, COUNT(*) FROM document " +
+                       "WHERE date_upload >= DATE_SUB(NOW(), INTERVAL 12 MONTH) GROUP BY mois ORDER BY mois";
+        try (Statement st = connection.createStatement(); ResultSet rs = st.executeQuery(query)) {
+            while (rs.next()) map.put(rs.getString("mois"), rs.getInt(2));
+        }
+        return map;
+    }
+
+    public List<Document> findInMonth(int year, int month) throws SQLException {
+        List<Document> list = new ArrayList<>();
+        String query = "SELECT * FROM document WHERE YEAR(date_upload) = ? AND MONTH(date_upload) = ?";
+        try (PreparedStatement pst = connection.prepareStatement(query)) {
+            pst.setInt(1, year);
+            pst.setInt(2, month);
+            try (ResultSet rs = pst.executeQuery()) {
+                while (rs.next()) list.add(mapResultSetToDocument(rs));
+            }
+        }
+        return list;
+    }
+
     private Document mapResultSetToDocument(ResultSet rs) throws SQLException {
         Document d = new Document();
         d.setId(rs.getInt("id"));

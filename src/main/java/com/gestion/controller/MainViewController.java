@@ -47,6 +47,16 @@ public class MainViewController {
                             : "Vos pièces justificatives déposées");
     }
 
+    @FXML public void showCalendrier() {
+        loadView("view/CalendrierView.fxml", null,
+                "Calendrier des Activités", "Créations d'entreprises et dépôts de documents");
+    }
+
+    @FXML public void showHistorique() {
+        loadView("view/HistoriqueView.fxml", null,
+                "Historique des Activités", "Toutes les entrées et mises à jour du système");
+    }
+
     // ── Toggle de rôle (mode démo) ────────────────────────────
     @FXML public void handleToggleRole() {
         SessionManager.getInstance().toggleRole();

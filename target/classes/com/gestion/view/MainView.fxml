@@ -53,9 +53,10 @@
                   <Button fx:id="btnEntreprises" alignment="BASELINE_LEFT" mnemonicParsing="false"
                           onAction="#showEntreprises" prefHeight="46.0" prefWidth="240.0"
                           styleClass="nav-button" text="🏢  Entreprises" />
-                  <Button fx:id="btnDocuments" alignment="BASELINE_LEFT" mnemonicParsing="false"
-                          onAction="#showDocuments" prefHeight="46.0" prefWidth="240.0"
-                          styleClass="nav-button" text="📄  Documents" />
+                  <Button mnemonicParsing="false" onAction="#showDocuments" prefHeight="45.0" prefWidth="250.0" styleClass="nav-button" text="📄  Documents" />
+                  <Button mnemonicParsing="false" onAction="#showCalendrier" prefHeight="45.0" prefWidth="250.0" styleClass="nav-button" text="📅  Calendrier" />
+                  <Button text="🕐  Historique" onAction="#showHistorique"
+                          styleClass="nav-button" maxWidth="Infinity" prefHeight="45.0" prefWidth="250.0" mnemonicParsing="false" />
 
                   <VBox VBox.vgrow="ALWAYS" />
 
