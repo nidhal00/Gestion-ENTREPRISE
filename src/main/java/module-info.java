@@ -10,6 +10,7 @@ module com.gestion {
     requires com.google.zxing;
     requires com.google.zxing.javase;
     requires java.desktop;
+    requires org.json;
 
     opens com.gestion to javafx.fxml;
     opens com.gestion.controller to javafx.fxml;

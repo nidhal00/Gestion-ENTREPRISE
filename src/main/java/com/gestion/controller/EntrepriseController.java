@@ -399,6 +399,19 @@ public class EntrepriseController {
         e.setEmail(txtEmail.getText().trim());
         e.setTelephone(txtTelephone.getText().trim());
         e.setAdresse(txtAdresse.getText().trim());
+        
+        // --- API 1: Geocoding (Nominatim) ---
+        if (!e.getAdresse().isEmpty()) {
+            double[] coords = com.gestion.util.GeoService.getCoordinates(e.getAdresse());
+            if (coords != null) {
+                e.setLatitude(coords[0]);
+                e.setLongitude(coords[1]);
+                System.out.println("✅ Coordonnées trouvées pour " + e.getAdresse() + " : Lat=" + coords[0] + " Lon=" + coords[1]);
+            } else {
+                System.out.println("⚠️ Impossible de géolocaliser l'adresse : " + e.getAdresse());
+            }
+        }
+
         if (dpDateCreation.getValue() != null) {
             e.setDateCreation(Date.from(
                 dpDateCreation.getValue().atStartOfDay(ZoneId.systemDefault()).toInstant()));
@@ -490,6 +503,84 @@ public class EntrepriseController {
         }
     }
 
+    @FXML void handleOpenMap() {
+        Entreprise sel = tableEntreprises.getSelectionModel().getSelectedItem();
+        if (sel == null) {
+            UiHelper.showAlert("Sélection requise", "Sélectionnez une entreprise pour ouvrir sa carte.", Alert.AlertType.WARNING);
+            return;
+        }
+        if (sel.getLatitude() == null || sel.getLongitude() == null || (sel.getLatitude() == 0.0 && sel.getLongitude() == 0.0)) {
+            UiHelper.showAlert("Coordonnées manquantes", "Cette entreprise n'a pas de coordonnées GPS. Veuillez modifier l'entreprise et enregistrer pour géolocaliser l'adresse.", Alert.AlertType.WARNING);
+            return;
+        }
+        try {
+            java.awt.Desktop.getDesktop().browse(new java.net.URI("https://www.google.com/maps/search/?api=1&query=" + sel.getLatitude() + "," + sel.getLongitude()));
+        } catch (Exception ex) {
+            UiHelper.showAlert("Erreur", "Impossible d'ouvrir la carte.", Alert.AlertType.ERROR);
+        }
+    }
+
+    @FXML void handleAssistantIA() {
+        Entreprise sel = tableEntreprises.getSelectionModel().getSelectedItem();
+        if (sel == null) {
+            UiHelper.showAlert("Sélection requise", "Sélectionnez une entreprise pour lancer l'Analyse IA.", Alert.AlertType.WARNING);
+            return;
+        }
+
+        Stage dialog = new Stage();
+        dialog.setTitle("🧠 MindAudit AI - Assistant");
+        dialog.initModality(Modality.APPLICATION_MODAL);
+
+        VBox root = new VBox(15);
+        root.setStyle("-fx-background-color: #0a0f1e; -fx-padding: 20;");
+        root.setPrefWidth(500);
+        root.setPrefHeight(400);
+
+        Label lblHeader = new Label("Analyse d'Entreprise assistée par IA");
+        lblHeader.setStyle("-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;");
+
+        VBox chatBox = new VBox(10);
+        chatBox.setStyle("-fx-background-color: rgba(255,255,255,0.05); -fx-padding: 15; -fx-background-radius: 10;");
+        
+        Label lblContext = new Label("Envoi du contexte : " + sel.getNom() + " (" + (sel.getSecteur()!=null?sel.getSecteur():"Non défini") + ")");
+        lblContext.setStyle("-fx-text-fill: #94a3b8; -fx-font-size: 12px; -fx-font-style: italic;");
+        
+        Label lblAiResponse = new Label("L'IA réfléchit et génère le rapport d'audit...\n\n(Veuillez patienter quelques secondes)");
+        lblAiResponse.setStyle("-fx-text-fill: #34d399; -fx-font-size: 14px; -fx-font-weight: bold;");
+        lblAiResponse.setWrapText(true);
+
+        chatBox.getChildren().addAll(lblContext, lblAiResponse);
+
+        Button btnClose = new Button("Fermer l'Assistant");
+        btnClose.getStyleClass().add("btn-secondary");
+        btnClose.setOnAction(e -> dialog.close());
+        btnClose.setDisable(true); // Désactivé pendant le chargement
+
+        root.getChildren().addAll(lblHeader, chatBox, btnClose);
+        root.setAlignment(Pos.TOP_CENTER);
+
+        Scene scene = new Scene(root);
+        scene.getStylesheets().add(getClass().getResource("/com/gestion/css/style.css").toExternalForm());
+        dialog.setScene(scene);
+        dialog.show();
+
+        // Lancement de l'API IA en arrière-plan
+        new Thread(() -> {
+            String nom = sel.getNom();
+            String secteur = sel.getSecteur() != null ? sel.getSecteur() : "Non spécifié";
+            String taille = sel.getTaille() != null ? sel.getTaille() : "Non spécifiée";
+            String pays = sel.getPays() != null ? sel.getPays() : "Non spécifié";
+            
+            String reponseIA = com.gestion.util.AiAuditService.analyserRisquesEntreprise(nom, secteur, taille, pays);
+            
+            javafx.application.Platform.runLater(() -> {
+                lblAiResponse.setText(reponseIA);
+                lblAiResponse.setStyle("-fx-text-fill: #e2e8f0; -fx-font-size: 14px;");
+                btnClose.setDisable(false);
+            });
+        }).start();
+    }
+
     private void showQRDialog(Entreprise e, Image fxImage, java.awt.image.BufferedImage bi) {
         Stage dialog = new Stage();
         dialog.setTitle("QR Code — " + e.getNom());
@@ -502,15 +593,24 @@ public class EntrepriseController {
         Label lTitle = new Label("\uD83D\uDD32   Audit Card MindAudit");
         lTitle.setStyle("-fx-text-fill: #e2e8f0; -fx-font-weight: bold; -fx-font-size: 18px;");
 
+        // --- API 2 : Remplacée ---
+        HBox companyHeader = new HBox(15);
+        companyHeader.setAlignment(Pos.CENTER);
+        
+        VBox textDetails = new VBox(2);
+        textDetails.setAlignment(Pos.CENTER);
         Label lNom = new Label(e.getNom());
-        lNom.setStyle("-fx-text-fill: #818cf8; -fx-font-size: 14px; -fx-font-weight: bold;");
+        lNom.setStyle("-fx-text-fill: #818cf8; -fx-font-size: 16px; -fx-font-weight: bold;");
 
         String statutTxt = (e.getStatut() != null ? e.getStatut() : "en_attente")
                          + "  •  " + (e.getComplianceScore() != null ? e.getComplianceScore() : 0) + "% conformité";
         Label lStatut = new Label(statutTxt);
         lStatut.setStyle("-fx-text-fill: " + dotColor + "; -fx-font-size: 11px; -fx-font-weight: bold;");
+        
+        textDetails.getChildren().addAll(lNom, lStatut);
+        companyHeader.getChildren().add(textDetails);
 
-        VBox header = new VBox(6, lTitle, lNom, lStatut);
+        VBox header = new VBox(15, lTitle, companyHeader);
         header.setAlignment(Pos.CENTER);
         header.setPadding(new Insets(24, 24, 16, 24));
 

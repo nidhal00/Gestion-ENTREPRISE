@@ -14,7 +14,7 @@ public class EntrepriseService {
     }
 
     public void add(Entreprise e) throws SQLException {
-        String query = "INSERT INTO entreprise (nom, matricule_fiscale, secteur, taille, pays, email, telephone, adresse, date_creation, statut, owner_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String query = "INSERT INTO entreprise (nom, matricule_fiscale, secteur, taille, pays, email, telephone, adresse, date_creation, statut, owner_id, latitude, longitude) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement pst = connection.prepareStatement(query)) {
             pst.setString(1, e.getNom());
             pst.setString(2, e.getMatriculeFiscale());
@@ -28,17 +28,19 @@ public class EntrepriseService {
                 ? e.getDateCreation().getTime()
                 : System.currentTimeMillis();
             pst.setTimestamp(9, new Timestamp(ts));
-            // Utilise le statut défini (ex: validé par score auto), sinon "en_attente" par défaut
             pst.setString(10, e.getStatut() != null ? e.getStatut() : "en_attente");
-            // owner_id stocké pour permettre au User de retrouver son entreprise
             if (e.getOwnerId() != null) pst.setInt(11, e.getOwnerId());
             else pst.setNull(11, Types.INTEGER);
+            
+            if (e.getLatitude() != null) pst.setDouble(12, e.getLatitude()); else pst.setNull(12, Types.DOUBLE);
+            if (e.getLongitude() != null) pst.setDouble(13, e.getLongitude()); else pst.setNull(13, Types.DOUBLE);
+            
             pst.executeUpdate();
         }
     }
 
     public void update(Entreprise e) throws SQLException {
-        String query = "UPDATE entreprise SET nom=?, matricule_fiscale=?, secteur=?, taille=?, pays=?, email=?, telephone=?, adresse=?, statut=? WHERE id=?";
+        String query = "UPDATE entreprise SET nom=?, matricule_fiscale=?, secteur=?, taille=?, pays=?, email=?, telephone=?, adresse=?, statut=?, latitude=?, longitude=? WHERE id=?";
         try (PreparedStatement pst = connection.prepareStatement(query)) {
             pst.setString(1, e.getNom());
             pst.setString(2, e.getMatriculeFiscale());
@@ -49,7 +51,11 @@ public class EntrepriseService {
             pst.setString(7, e.getTelephone());
             pst.setString(8, e.getAdresse());
             pst.setString(9, e.getStatut());
-            pst.setInt(10, e.getId());
+            
+            if (e.getLatitude() != null) pst.setDouble(10, e.getLatitude()); else pst.setNull(10, Types.DOUBLE);
+            if (e.getLongitude() != null) pst.setDouble(11, e.getLongitude()); else pst.setNull(11, Types.DOUBLE);
+            
+            pst.setInt(12, e.getId());
             pst.executeUpdate();
         }
     }

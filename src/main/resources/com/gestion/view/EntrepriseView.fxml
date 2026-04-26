@@ -39,6 +39,11 @@
                           text="❌  Invalider" />
                   <Button mnemonicParsing="false" onAction="#handleGenerateQR"
                           styleClass="btn-secondary" text="▦ QR Code" prefHeight="36.0" />
+                  <Button mnemonicParsing="false" onAction="#handleOpenMap"
+                          styleClass="btn-secondary" text="🗺️ Carte" prefHeight="36.0" />
+                  <Button mnemonicParsing="false" onAction="#handleAssistantIA"
+                          style="-fx-background-color: linear-gradient(to right, #8b5cf6, #d946ef); -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 8 20;"
+                          text="🧠 Assistant IA" prefHeight="36.0" />
                </children>
             </HBox>
 
